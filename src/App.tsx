@@ -8,6 +8,7 @@ import Tech3D from './components/Tech3D'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Loader from './components/Loader'
+import DownloadButton from './components/DownloadButton'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -36,6 +37,7 @@ function App() {
           <Tech3D />
           <Contact />
           <Footer />
+          <DownloadButton />
         </motion.div>
       )}
     </div>
