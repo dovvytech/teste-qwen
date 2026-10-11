@@ -1,19 +1,26 @@
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 
-// All source files content
-const files: Record<string, string> = {
-  'package.json': `{
-  "name": "dovvytech-website",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+// File contents stored as regular strings to avoid template literal nesting issues
+const fileContents: Record<string, string> = {}
+
+// Helper to add files
+function addFile(path: string, content: string) {
+  fileContents[path] = content
+}
+
+// Package.json
+addFile('package.json', JSON.stringify({
+  name: "dovvytech-website",
+  private: true,
+  version: "1.0.0",
+  type: "module",
+  scripts: {
+    dev: "vite",
+    build: "vite build",
+    preview: "vite preview"
   },
-  "dependencies": {
+  dependencies: {
     "@react-three/drei": "^9.92.7",
     "@react-three/fiber": "^8.15.12",
     "framer-motion": "^11.16.1",
@@ -22,7 +29,7 @@ const files: Record<string, string> = {
     "react-dom": "^18.2.0",
     "three": "^0.160.0"
   },
-  "devDependencies": {
+  devDependencies: {
     "@tailwindcss/vite": "^4.1.7",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
@@ -32,26 +39,28 @@ const files: Record<string, string> = {
     "typescript": "^5.7.0",
     "vite": "^6.3.5"
   }
-}`,
+}, null, 2))
 
-  'tsconfig.json': `{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true
+// tsconfig.json
+addFile('tsconfig.json', JSON.stringify({
+  compilerOptions: {
+    target: "ES2020",
+    module: "ESNext",
+    lib: ["ES2020", "DOM", "DOM.Iterable"],
+    jsx: "react-jsx",
+    moduleResolution: "bundler",
+    strict: true,
+    skipLibCheck: true,
+    esModuleInterop: true,
+    isolatedModules: true,
+    noEmit: true,
+    allowImportingTsExtensions: true
   },
-  "include": ["src"]
-}`,
+  include: ["src"]
+}, null, 2))
 
-  'vite.config.ts': `import { defineConfig } from "vite";
+// vite.config.ts
+addFile('vite.config.ts', `import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -61,30 +70,32 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 3000,
   },
-});`,
+});`)
 
-  'index.html': `<!doctype html>
+// index.html
+addFile('index.html', `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DOVVYTECH - Future of Technology</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
-</html>`,
+</html>`)
 
-  'src/main.tsx': `import React from "react";
+// src/main.tsx
+addFile('src/main.tsx', `import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(<App />);`,
+ReactDOM.createRoot(document.getElementById("root")!).render(<App />);`)
 
-  'src/index.css': `@import "tailwindcss";
+// src/index.css
+addFile('src/index.css', `@import "tailwindcss";
 
 @layer base {
   * {
@@ -122,26 +133,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(<App />);`,
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to bottom, #22d3ee, #a78bfa);
   }
-}
+}`)
 
-@layer components {
-  .glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-}
-
-@layer utilities {
-  .text-gradient {
-    background: linear-gradient(to right, #06b6d4, #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-}`,
-
-  'src/App.tsx': `import { useState, useEffect, Suspense } from 'react'
+// src/App.tsx
+addFile('src/App.tsx', `import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -185,9 +180,10 @@ function App() {
   )
 }
 
-export default App`,
+export default App`)
 
-  'src/components/Loader.tsx': `import { motion } from 'framer-motion'
+// src/components/Loader.tsx
+addFile('src/components/Loader.tsx', `import { motion } from 'framer-motion'
 
 export default function Loader() {
   return (
@@ -239,9 +235,10 @@ export default function Loader() {
       </div>
     </motion.div>
   )
-}`,
+}`)
 
-  'src/components/Navbar.tsx': `import { useState, useEffect } from 'react'
+// src/components/Navbar.tsx
+addFile('src/components/Navbar.tsx', `import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 
@@ -331,9 +328,10 @@ export default function Navbar() {
       )}
     </motion.nav>
   )
-}`,
+}`)
 
-  'src/components/Hero.tsx': `import { Suspense } from 'react'
+// src/components/Hero.tsx
+addFile('src/components/Hero.tsx', `import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
@@ -363,7 +361,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="inline-block px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 mb-6">
-            <span className="text-cyan-400 text-sm font-medium">🚀 Next-Gen Technology Solutions</span>
+            <span className="text-cyan-400 text-sm font-medium">Next-Gen Technology Solutions</span>
           </div>
         </motion.div>
 
@@ -441,9 +439,10 @@ export default function Hero() {
       </motion.div>
     </section>
   )
-}`,
+}`)
 
-  'src/components/Scene3D.tsx': `import { useRef } from 'react'
+// src/components/Scene3D.tsx
+addFile('src/components/Scene3D.tsx', `import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Float, MeshDistortMaterial, Sphere, Torus, Box } from '@react-three/drei'
 import * as THREE from 'three'
@@ -512,42 +511,6 @@ function FloatingTorus2() {
   )
 }
 
-function SmallCubes() {
-  const groupRef = useRef<THREE.Group>(null!)
-
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.1
-    }
-  })
-
-  const cubes = Array.from({ length: 20 }, (_, i) => {
-    const angle = (i / 20) * Math.PI * 2
-    const radius = 4 + Math.random() * 2
-    return {
-      position: [
-        Math.cos(angle) * radius,
-        (Math.random() - 0.5) * 4,
-        Math.sin(angle) * radius - 2,
-      ] as [number, number, number],
-      scale: 0.05 + Math.random() * 0.1,
-      color: ['#06b6d4', '#8b5cf6', '#3b82f6', '#ec4899'][Math.floor(Math.random() * 4)],
-    }
-  })
-
-  return (
-    <group ref={groupRef}>
-      {cubes.map((cube, i) => (
-        <Float key={i} speed={1 + Math.random() * 2} floatIntensity={0.5}>
-          <Box args={[cube.scale, cube.scale, cube.scale]} position={cube.position}>
-            <meshStandardMaterial color={cube.color} emissive={cube.color} emissiveIntensity={0.5} />
-          </Box>
-        </Float>
-      ))}
-    </group>
-  )
-}
-
 function Particles() {
   const pointsRef = useRef<THREE.Points>(null!)
   const count = 500
@@ -592,13 +555,13 @@ export default function Scene3D() {
       <AnimatedSphere />
       <FloatingTorus />
       <FloatingTorus2 />
-      <SmallCubes />
       <Particles />
     </>
   )
-}`,
+}`)
 
-  'src/components/About.tsx': `import { motion, useInView } from 'framer-motion'
+// src/components/About.tsx
+addFile('src/components/About.tsx', `import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Cpu, Globe, Zap, Shield } from 'lucide-react'
 
@@ -652,7 +615,7 @@ export default function About() {
             </span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            At DOVVYTECH, we merge creativity with technology to build solutions that push boundaries. Our team of experts is dedicated to transforming ideas into reality.
+            At DOVVYTECH, we merge creativity with technology to build solutions that push boundaries.
           </p>
         </motion.div>
 
@@ -670,30 +633,16 @@ export default function About() {
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-500/0 to-purple-500/0 group-hover:from-cyan-500/5 group-hover:to-purple-500/5 transition-all duration-300" />
             </motion.div>
           ))}
         </div>
-
-        <motion.div
-          className="mt-20 text-center"
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <div className="inline-block p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10">
-            <p className="text-xl md:text-2xl text-gray-300 italic max-w-3xl">
-              "Our mission is to empower businesses with transformative technology that drives growth, efficiency, and innovation in an ever-evolving digital landscape."
-            </p>
-            <div className="mt-4 text-cyan-400 font-medium">— DOVVYTECH Vision</div>
-          </div>
-        </motion.div>
       </div>
     </section>
   )
-}`,
+}`)
 
-  'src/components/Services.tsx': `import { motion, useInView } from 'framer-motion'
+// src/components/Services.tsx
+addFile('src/components/Services.tsx', `import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Code, Cloud, Brain, Layers, Smartphone, BarChart3 } from 'lucide-react'
 
@@ -701,44 +650,38 @@ const services = [
   {
     icon: Brain,
     title: 'AI & Machine Learning',
-    description: 'Custom AI models, natural language processing, computer vision, and predictive analytics solutions.',
+    description: 'Custom AI models, natural language processing, computer vision, and predictive analytics.',
     gradient: 'from-cyan-500 to-blue-600',
-    features: ['NLP Solutions', 'Computer Vision', 'Predictive Models', 'Deep Learning'],
   },
   {
     icon: Cloud,
     title: 'Cloud Architecture',
     description: 'Scalable cloud infrastructure design, migration, and management across AWS, Azure, and GCP.',
     gradient: 'from-purple-500 to-pink-600',
-    features: ['Multi-Cloud', 'Auto-Scaling', 'Cost Optimization', 'DevOps'],
   },
   {
     icon: Code,
     title: 'Web Development',
     description: 'Full-stack web applications with modern frameworks, real-time features, and stunning UI/UX.',
     gradient: 'from-blue-500 to-indigo-600',
-    features: ['React/Next.js', 'API Design', 'Real-time Apps', 'Progressive Web Apps'],
   },
   {
     icon: Layers,
     title: '3D & Immersive Tech',
     description: 'WebGL experiences, AR/VR applications, 3D visualization, and interactive digital environments.',
     gradient: 'from-emerald-500 to-teal-600',
-    features: ['WebGL/Three.js', 'AR/VR Experiences', '3D Modeling', 'Virtual Tours'],
   },
   {
     icon: Smartphone,
     title: 'Mobile Development',
     description: 'Cross-platform mobile apps with native performance, offline capabilities, and beautiful design.',
     gradient: 'from-orange-500 to-red-600',
-    features: ['React Native', 'iOS & Android', 'Offline-First', 'Push Notifications'],
   },
   {
     icon: BarChart3,
     title: 'Data Analytics',
     description: 'Business intelligence, data warehousing, real-time dashboards, and actionable insights.',
     gradient: 'from-yellow-500 to-amber-600',
-    features: ['BI Dashboards', 'Data Pipelines', 'Real-time Analytics', 'ETL Solutions'],
   },
 ]
 
@@ -748,8 +691,6 @@ export default function Services() {
 
   return (
     <section id="services" className="relative py-32 px-6" ref={ref}>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
-
       <div className="max-w-7xl mx-auto relative">
         <motion.div
           className="text-center mb-16"
@@ -764,7 +705,7 @@ export default function Services() {
             </span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            Comprehensive technology solutions tailored to your business needs. From concept to deployment, we've got you covered.
+            Comprehensive technology solutions tailored to your business needs.
           </p>
         </motion.div>
 
@@ -781,24 +722,17 @@ export default function Services() {
                 <service.icon className="text-white" size={28} />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed mb-5">{service.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {service.features.map((feature) => (
-                  <span key={feature} className="px-3 py-1 rounded-full text-xs bg-white/5 text-gray-300 border border-white/10">
-                    {feature}
-                  </span>
-                ))}
-              </div>
-              <div className={\`absolute -bottom-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br \${service.gradient} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500\`} />
+              <p className="text-gray-400 text-sm leading-relaxed">{service.description}</p>
             </motion.div>
           ))}
         </div>
       </div>
     </section>
   )
-}`,
+}`)
 
-  'src/components/Tech3D.tsx': `import { Suspense, useRef } from 'react'
+// src/components/Tech3D.tsx
+addFile('src/components/Tech3D.tsx', `import { Suspense, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Float, MeshDistortMaterial, Torus, Octahedron } from '@react-three/drei'
 import { motion, useInView } from 'framer-motion'
@@ -853,7 +787,6 @@ function TechScene() {
       <ambientLight intensity={0.2} />
       <pointLight position={[10, 10, 10]} intensity={1} color="#06b6d4" />
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#8b5cf6" />
-      <spotLight position={[0, 10, 0]} intensity={0.8} color="#ffffff" angle={0.3} penumbra={1} />
 
       <RotatingOctahedron />
       <OrbitalRing radius={2.5} speed={0.5} color="#06b6d4" />
@@ -905,7 +838,7 @@ export default function Tech3D() {
               </span>
             </h2>
             <p className="text-gray-400 text-lg mb-8">
-              We use the latest technologies and frameworks to build robust, scalable, and future-proof solutions for our clients.
+              We use the latest technologies and frameworks to build robust, scalable solutions.
             </p>
 
             <div className="space-y-4">
@@ -924,7 +857,7 @@ export default function Tech3D() {
                     <motion.div
                       className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full"
                       initial={{ width: 0 }}
-                      animate={isInView ? { width: \`\${tech.level}%\` } : {}}
+                      animate={isInView ? { width: tech.level + '%' } : {}}
                       transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
                     />
                   </div>
@@ -936,9 +869,10 @@ export default function Tech3D() {
       </div>
     </section>
   )
-}`,
+}`)
 
-  'src/components/Contact.tsx': `import { motion, useInView } from 'framer-motion'
+// src/components/Contact.tsx
+addFile('src/components/Contact.tsx', `import { motion, useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
 import { Send, Mail, MapPin, Phone } from 'lucide-react'
 
@@ -957,9 +891,6 @@ export default function Contact() {
 
   return (
     <section id="contact" className="relative py-32 px-6" ref={ref}>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl" />
-
       <div className="max-w-7xl mx-auto relative">
         <motion.div
           className="text-center mb-16"
@@ -974,7 +905,7 @@ export default function Contact() {
             </span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            Ready to start your next project? Get in touch with our team and let's create something extraordinary.
+            Ready to start your next project? Get in touch with our team.
           </p>
         </motion.div>
 
@@ -983,7 +914,6 @@ export default function Contact() {
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-8"
           >
             <div className="p-8 rounded-2xl bg-white/5 border border-white/10">
               <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
@@ -1017,13 +947,6 @@ export default function Contact() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-4">
-              {['Twitter', 'LinkedIn', 'GitHub', 'Discord'].map((social) => (
-                <a key={social} href="#" className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
-                  {social}
-                </a>
-              ))}
-            </div>
           </motion.div>
 
           <motion.div
@@ -1034,18 +957,18 @@ export default function Contact() {
             <form onSubmit={handleSubmit} className="p-8 rounded-2xl bg-white/5 border border-white/10 space-y-6">
               <div>
                 <label className="text-gray-400 text-sm mb-2 block">Your Name</label>
-                <input type="text" value={formState.name} onChange={(e) => setFormState({ ...formState, name: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all" placeholder="John Doe" required />
+                <input type="text" value={formState.name} onChange={(e) => setFormState({ ...formState, name: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none transition-all" placeholder="John Doe" required />
               </div>
               <div>
                 <label className="text-gray-400 text-sm mb-2 block">Email Address</label>
-                <input type="email" value={formState.email} onChange={(e) => setFormState({ ...formState, email: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all" placeholder="john@example.com" required />
+                <input type="email" value={formState.email} onChange={(e) => setFormState({ ...formState, email: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none transition-all" placeholder="john@example.com" required />
               </div>
               <div>
                 <label className="text-gray-400 text-sm mb-2 block">Message</label>
-                <textarea value={formState.message} onChange={(e) => setFormState({ ...formState, message: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all h-32 resize-none" placeholder="Tell us about your project..." required />
+                <textarea value={formState.message} onChange={(e) => setFormState({ ...formState, message: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none transition-all h-32 resize-none" placeholder="Tell us about your project..." required />
               </div>
-              <button type="submit" className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 group">
-                {submitted ? '✓ Message Sent!' : (<>Send Message <Send size={18} className="group-hover:translate-x-1 transition-transform" /></>)}
+              <button type="submit" className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center justify-center gap-2">
+                {submitted ? 'Message Sent!' : 'Send Message'}
               </button>
             </form>
           </motion.div>
@@ -1053,9 +976,10 @@ export default function Contact() {
       </div>
     </section>
   )
-}`,
+}`)
 
-  'src/components/Footer.tsx': `export default function Footer() {
+// src/components/Footer.tsx
+addFile('src/components/Footer.tsx', `export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const footerLinks = {
@@ -1076,15 +1000,8 @@ export default function Contact() {
               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">DOVVYTECH</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs mb-6">
-              Building the future of technology with innovative solutions in AI, cloud computing, and immersive experiences.
+              Building the future of technology with innovative solutions.
             </p>
-            <div className="flex gap-3">
-              {['X', 'Li', 'Gh', 'Dc'].map((icon) => (
-                <a key={icon} href="#" className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 text-xs hover:text-cyan-400 hover:border-cyan-500/30 transition-all">
-                  {icon}
-                </a>
-              ))}
-            </div>
           </div>
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
@@ -1101,18 +1018,19 @@ export default function Contact() {
         </div>
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm">© {currentYear} DOVVYTECH. All rights reserved.</p>
-          <p className="text-gray-500 text-sm">Crafted with ❤️ and cutting-edge technology</p>
+          <p className="text-gray-500 text-sm">Crafted with cutting-edge technology</p>
         </div>
       </div>
     </footer>
   )
-}`,
+}`)
 
-  'README.md': `# DOVVYTECH - 3D Website
+// README.md
+addFile('README.md', `# DOVVYTECH - 3D Website
 
 A stunning 3D website built with React, Three.js, and Tailwind CSS.
 
-## 🚀 Features
+## Features
 
 - Interactive 3D scenes with Three.js
 - Smooth animations with Framer Motion
@@ -1120,74 +1038,43 @@ A stunning 3D website built with React, Three.js, and Tailwind CSS.
 - Modern glassmorphism UI
 - Dark theme with gradient accents
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **React** - UI framework
-- **Three.js** / **React Three Fiber** - 3D rendering
-- **Framer Motion** - Animations
-- **Tailwind CSS** - Styling
-- **Vite** - Build tool
-- **TypeScript** - Type safety
+- React 18
+- Three.js / React Three Fiber
+- Framer Motion
+- Tailwind CSS
+- Vite
+- TypeScript
 
-## 📦 Installation
+## Installation
 
 \`\`\`bash
 npm install
 \`\`\`
 
-## 🏃 Development
+## Development
 
 \`\`\`bash
 npm run dev
 \`\`\`
 
-## 🏗️ Build
+## Build
 
 \`\`\`bash
 npm run build
 \`\`\`
 
-## 📁 Project Structure
+## License
 
-\`\`\`
-├── src/
-│   ├── components/
-│   │   ├── About.tsx
-│   │   ├── Contact.tsx
-│   │   ├── Footer.tsx
-│   │   ├── Hero.tsx
-│   │   ├── Loader.tsx
-│   │   ├── Navbar.tsx
-│   │   ├── Scene3D.tsx
-│   │   ├── Services.tsx
-│   │   └── Tech3D.tsx
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-\`\`\`
-
-## 🎨 Customization
-
-- Change colors in the gradient classes (cyan, purple, blue)
-- Modify 3D objects in Scene3D.tsx and Tech3D.tsx
-- Update content in each component file
-- Adjust animations in Framer Motion props
-
-## 📄 License
-
-MIT License - feel free to use this project!
-`,
-}
+MIT License
+`)
 
 export async function downloadSourceCode() {
   const zip = new JSZip()
 
   // Add all files to the zip
-  Object.entries(files).forEach(([path, content]) => {
+  Object.entries(fileContents).forEach(([path, content]) => {
     zip.file(path, content)
   })
 
